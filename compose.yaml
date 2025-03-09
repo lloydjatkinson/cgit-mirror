@@ -24,13 +24,12 @@ services:
   #   restart: "no"
 
   crontab:
-    image: javanile/crontab
+    image: alpine:latest
     container_name: git-mirror-cron
     volumes:
       - git-repos:/srv/git
       - ./mirror.sh:/mirror.sh
-    command:
-      - "*/5 * * * * sh /mirror.sh"
+    command: sh -c "echo '*/5 * * * * sh /mirror.sh' > /etc/crontabs/root && crond -f"
     restart: unless-stopped
     # depends_on:
     #   - setup
