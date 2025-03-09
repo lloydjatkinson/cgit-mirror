@@ -1,0 +1,40 @@
+version: '3'
+
+services:
+  cgit:
+    image: joseluisq/alpine-cgit:2
+    container_name: cgit
+    environment:
+      - CGIT_TITLE=mirror of lloydjatkinson
+      - CGIT_DESC=A mirror of my Git repositories
+    ports:
+      - "8080:80"
+    volumes:
+      - git-repos:/srv/git
+      # - ./cgitrc:/etc/cgitrc
+    restart: unless-stopped
+
+  # setup:
+  #   image: alpine:latest
+  #   volumes:
+  #     - git-repos:/srv/git
+  #     - ./mirror.sh:/mirror.sh
+  #     - ./repos:/srv/git/repos
+  #   command: sh /mirror.sh
+  #   restart: "no"
+
+  crontab:
+    image: javanile/crontab
+    container_name: git-mirror-cron
+    volumes:
+      - git-repos:/srv/git
+      - ./mirror.sh:/mirror.sh
+    command:
+      - "*/5 * * * * sh /mirror.sh"
+    restart: unless-stopped
+    # depends_on:
+    #   - setup
+
+volumes:
+  git-repos:
+    driver: local
